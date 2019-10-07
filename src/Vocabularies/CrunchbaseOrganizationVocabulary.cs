@@ -26,60 +26,71 @@ namespace CluedIn.ExternalSearch.Providers.Crunchbase.Vocabularies
             this.KeySeparator   = ".";
             this.Grouping       = EntityType.Organization;
 
-            this.Type             = this.Add(new VocabularyKey("type", VocabularyKeyDataType.Text));
-            this.Uuid             = this.Add(new VocabularyKey("uuid", VocabularyKeyDataType.Guid));
-            this.Permalink        = this.Add(new VocabularyKey("permalink", VocabularyKeyDataType.Uri));
-            this.ShortDescription = this.Add(new VocabularyKey("shortDescription", VocabularyKeyDataType.Text));
-            this.ApiPath          = this.Add(new VocabularyKey("apiPath", VocabularyKeyDataType.Uri));
-            this.WebPath          = this.Add(new VocabularyKey("webPath", VocabularyKeyDataType.Uri));
-            this.ApiUrl           = this.Add(new VocabularyKey("apiUrl", VocabularyKeyDataType.Uri));
-            this.Name             = this.Add(new VocabularyKey("name", VocabularyKeyDataType.Text));
-            this.StockExchange    = this.Add(new VocabularyKey("stockExchange", VocabularyKeyDataType.Text));
-            this.StockSymbol      = this.Add(new VocabularyKey("stockSymbol", VocabularyKeyDataType.Text));
-            this.PrimaryRole      = this.Add(new VocabularyKey("primaryRole", VocabularyKeyDataType.Text));
-            this.ProfileImageUrl  = this.Add(new VocabularyKey("profileImageUrl", VocabularyKeyDataType.Uri));
-            this.Domain           = this.Add(new VocabularyKey("domain", VocabularyKeyDataType.Uri));
-            this.HomepageUrl      = this.Add(new VocabularyKey("homepageUrl", VocabularyKeyDataType.Uri));
-            this.FacebookUrl      = this.Add(new VocabularyKey("facebookUrl", VocabularyKeyDataType.Uri));
-            this.TwitterUrl       = this.Add(new VocabularyKey("twitterUrl", VocabularyKeyDataType.Uri));
-            this.LinkedinUrl      = this.Add(new VocabularyKey("linkedInUrl", VocabularyKeyDataType.Uri));
-            this.CityName         = this.Add(new VocabularyKey("cityName", VocabularyKeyDataType.Text));
-            this.RegionName       = this.Add(new VocabularyKey("regionName", VocabularyKeyDataType.Text));
-            this.CountryCode      = this.Add(new VocabularyKey("countryCode", VocabularyKeyDataType.Text));
-            this.CreatedAt        = this.Add(new VocabularyKey("createdAt", VocabularyKeyDataType.DateTime));
-            this.UpdatedAt        = this.Add(new VocabularyKey("updatedAt", VocabularyKeyDataType.DateTime));
-
-            this.AddMapping(this.Name, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.OrganizationName);
-            this.AddMapping(this.CountryCode, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.AddressCountryCode);
-            this.AddMapping(this.CityName, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.AddressCity);
-            this.AddMapping(this.HomepageUrl, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.Website);
-
-            this.AddMapping(this.TwitterUrl, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.Social.Twitter);
-            this.AddMapping(this.FacebookUrl, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.Social.Facebook);
-            this.AddMapping(this.LinkedinUrl, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.Social.LinkedIn);
+            this.Description         = this.Add(new VocabularyKey("description"));
+            this.Category            = this.Add(new VocabularyKey("category"));
+            this.Mission             = this.Add(new VocabularyKey("mission"));
+            this.AcquiredCount = this.Add(new VocabularyKey("acquiredCount", VocabularyKeyDataType.Integer));
+            this.Rounds = this.Add(new VocabularyKey("rounds", VocabularyKeyDataType.Integer));
+            this.Valuation = this.Add(new VocabularyKey("valuation", VocabularyKeyDataType.Number));
+            this.FundingTotal = this.Add(new VocabularyKey("fundingTotal", VocabularyKeyDataType.Number));
+            this.CurrentRound = this.Add(new VocabularyKey("currentRound", VocabularyKeyDataType.Integer));
+            this.IsIpo = this.Add(new VocabularyKey("isIpo", VocabularyKeyDataType.Boolean));
+            this.Categories = this.Add(new VocabularyKey("categories", VocabularyKeyDataType.Text));
+            this.ShortDescription = this.Add(new VocabularyKey("ShortDescription", VocabularyKeyDataType.Text));
+            this.PrimaryRole = this.Add(new VocabularyKey("PrimaryRole", VocabularyKeyDataType.Text));
+            this.RoleCompany = this.Add(new VocabularyKey("RoleCompany", VocabularyKeyDataType.Text));
+            this.RoleInvestor = this.Add(new VocabularyKey("RoleInvestor", VocabularyKeyDataType.Text));
+            this.RoleGroup = this.Add(new VocabularyKey("RoleGroup", VocabularyKeyDataType.Text));
+            this.RoleSchool = this.Add(new VocabularyKey("RoleSchool", VocabularyKeyDataType.Text));
+            this.FoundedOn = this.Add(new VocabularyKey("FoundedOn", VocabularyKeyDataType.Text));
+            this.FoundedOnTrustCode = this.Add(new VocabularyKey("FoundedOnTrustCode", VocabularyKeyDataType.Text));
+            this.IsClosed = this.Add(new VocabularyKey("IsClosed", VocabularyKeyDataType.Text));
+            this.ClosedOn = this.Add(new VocabularyKey("ClosedOn", VocabularyKeyDataType.Text));
+            this.ClosedOnTrustCode = this.Add(new VocabularyKey("ClosedOnTrustCode", VocabularyKeyDataType.Text));
+            this.NumEmployeesMin = this.Add(new VocabularyKey("NumEmployeesMin", VocabularyKeyDataType.Text));
+            this.StockExchange = this.Add(new VocabularyKey("StockExchange", VocabularyKeyDataType.Text));
+            this.NumEmployeesMax = this.Add(new VocabularyKey("NumEmployeesMax", VocabularyKeyDataType.Text));
+            this.StockSymbol = this.Add(new VocabularyKey("StockSymbol", VocabularyKeyDataType.Text));
+            this.TotalFundingUsd = this.Add(new VocabularyKey("TotalFundingUsd", VocabularyKeyDataType.Text));
+            this.NumberOfInvestments = this.Add(new VocabularyKey("NumberOfInvestments", VocabularyKeyDataType.Text));
+            this.HomepageUrl = this.Add(new VocabularyKey("HomepageUrl", VocabularyKeyDataType.Text));
+            this.CreatedAt = this.Add(new VocabularyKey("CreatedAt", VocabularyKeyDataType.Text));
+            this.UpdatedAt = this.Add(new VocabularyKey("UpdatedAt", VocabularyKeyDataType.Text));
         }
 
+        public VocabularyKey Description { get; set; }
+        public VocabularyKey Category { get; set; }
+        public VocabularyKey Mission { get; set; }
+
+        public VocabularyKey AcquiredCount { get; set; }
+        public VocabularyKey Rounds { get; set; }
+
+        public VocabularyKey Valuation { get; set; }
+        public VocabularyKey FundingTotal { get; set; }
+
+        public VocabularyKey CurrentRound { get; set; }
+        public VocabularyKey IsIpo { get; set; }
+
+        public VocabularyKey Categories { get; set; }
         public VocabularyKey ShortDescription { get; internal set; }
-        public VocabularyKey Type             { get; internal set; }
-        public VocabularyKey Uuid             { get; internal set; }
-        public VocabularyKey Permalink        { get; internal set; }
-        public VocabularyKey ApiPath          { get; internal set; }
-        public VocabularyKey WebPath          { get; internal set; }
-        public VocabularyKey ApiUrl           { get; internal set; }
-        public VocabularyKey Name             { get; internal set; }
-        public VocabularyKey StockExchange    { get; internal set; }
-        public VocabularyKey StockSymbol      { get; internal set; }
-        public VocabularyKey PrimaryRole      { get; internal set; }
-        public VocabularyKey ProfileImageUrl  { get; internal set; }
-        public VocabularyKey Domain           { get; internal set; }
-        public VocabularyKey HomepageUrl      { get; internal set; }
-        public VocabularyKey FacebookUrl      { get; internal set; }
-        public VocabularyKey TwitterUrl       { get; internal set; }
-        public VocabularyKey LinkedinUrl      { get; internal set; }
-        public VocabularyKey CityName         { get; internal set; }
-        public VocabularyKey RegionName       { get; internal set; }
-        public VocabularyKey CountryCode      { get; internal set; }
-        public VocabularyKey CreatedAt        { get; internal set; }
-        public VocabularyKey UpdatedAt        { get; internal set; }
+        public VocabularyKey PrimaryRole { get; internal set; }
+        public VocabularyKey RoleCompany { get; internal set; }
+        public VocabularyKey RoleInvestor { get; internal set; }
+        public VocabularyKey RoleGroup { get; internal set; }
+        public VocabularyKey RoleSchool { get; internal set; }
+        public VocabularyKey FoundedOn { get; internal set; }
+        public VocabularyKey FoundedOnTrustCode { get; internal set; }
+        public VocabularyKey IsClosed { get; internal set; }
+        public VocabularyKey ClosedOn { get; internal set; }
+        public VocabularyKey ClosedOnTrustCode { get; internal set; }
+        public VocabularyKey NumEmployeesMin { get; internal set; }
+        public VocabularyKey StockExchange { get; internal set; }
+        public VocabularyKey NumEmployeesMax { get; internal set; }
+        public VocabularyKey StockSymbol { get; internal set; }
+        public VocabularyKey TotalFundingUsd { get; internal set; }
+        public VocabularyKey NumberOfInvestments { get; internal set; }
+        public VocabularyKey HomepageUrl { get; internal set; }
+        public VocabularyKey CreatedAt { get; internal set; }
+        public VocabularyKey UpdatedAt { get; internal set; }
     }
 }
