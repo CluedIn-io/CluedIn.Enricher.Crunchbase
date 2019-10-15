@@ -4,7 +4,6 @@ namespace CluedIn.ExternalSearch.Providers.Crunchbase.Model
 {
     public class PersonResponse
     {
-
         [JsonProperty("metadata")]
         public Metadata Metadata { get; set; }
 

@@ -4,9 +4,8 @@ namespace CluedIn.ExternalSearch.Providers.Crunchbase.Model
 {
     public class Metadata
     {
-
         [JsonProperty("version")]
-        public int Version { get; set; }
+        public int? Version { get; set; }
 
         [JsonProperty("www_path_prefix")]
         public string WwwPathPrefix { get; set; }

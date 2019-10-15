@@ -20,9 +20,9 @@ using CluedIn.ExternalSearch.Filters;
 using CluedIn.ExternalSearch.Providers.Crunchbase.Vocabularies;
 using RestSharp;
 using CluedIn.Crawling.Helpers;
+using CluedIn.ExternalSearch.Providers.Crunchbase.Model;
 using CluedIn.Core.Utilities;
 using CluedIn.Core.FileTypes;
-using CluedIn.ExternalSearch.Providers.Crunchbase.Model;
 
 namespace CluedIn.ExternalSearch.Providers.Crunchbase
 {
@@ -66,11 +66,13 @@ namespace CluedIn.ExternalSearch.Providers.Crunchbase
         public override IEnumerable<IExternalSearchQuery> BuildQueries(ExecutionContext context, IExternalSearchRequest request)
         {
             if (!this.Accepts(request.EntityMetaData.EntityType))
+            {
                 yield break;
+            }
 
             var existingResults = request.GetQueryResults<PersonProperties>(this).ToList();
 
-            Func<string, bool> nameFilter = value => existingResults.Any(r => string.Equals(r.Data.first_name, value, StringComparison.InvariantCultureIgnoreCase));
+            Func<string, bool> nameFilter = value => existingResults.Any(r => string.Equals(r.Data.FirstName, value, StringComparison.InvariantCultureIgnoreCase));
 
             // Query Input
             var entityType = request.EntityMetaData.EntityType;
@@ -80,9 +82,14 @@ namespace CluedIn.ExternalSearch.Providers.Crunchbase
             var fullName = new HashSet<string>();
 
             if (!string.IsNullOrEmpty(request.EntityMetaData.Name))
+            {
                 fullName.Add(request.EntityMetaData.Name);
+            }
+
             if (!string.IsNullOrEmpty(request.EntityMetaData.DisplayName))
+            {
                 fullName.Add(request.EntityMetaData.DisplayName);
+            }
 
             if (jobTitle.Any() && fullName.Any() && organiztaion.Any())
             {
@@ -91,7 +98,9 @@ namespace CluedIn.ExternalSearch.Providers.Crunchbase
                                      .ToHashSet();
 
                 foreach (var value in values.Where(v => !nameFilter(v)))
+                {
                     yield return new ExternalSearchQuery(this, entityType, ExternalSearchQueryParameter.Name, value);
+                }
             }
         }
 
@@ -104,7 +113,9 @@ namespace CluedIn.ExternalSearch.Providers.Crunchbase
             var name = query.QueryParameters[ExternalSearchQueryParameter.Name].FirstOrDefault();
 
             if (string.IsNullOrEmpty(name))
+            {
                 yield break;
+            }
 
             name = HttpUtility.UrlEncode(name);
 
@@ -117,7 +128,9 @@ namespace CluedIn.ExternalSearch.Providers.Crunchbase
                 sharedApiToken = this.sharedApiTokens[this.sharedApiTokensIdx++];
 
                 if (this.sharedApiTokensIdx >= this.sharedApiTokens.Count)
+                {
                     this.sharedApiTokensIdx = 0;
+                }
             }
 
             var isPremium = this.CheckPremium(context, sharedApiToken);
@@ -132,18 +145,25 @@ namespace CluedIn.ExternalSearch.Providers.Crunchbase
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 if (response.Data != null)
+                {
                     foreach (var person in response.Data.Data.Items)
                     {
-                        person.Properties.uuid = person.Uuid;
-                        yield return new ExternalSearchQueryResult<PersonProperties>(query, person.Properties);
+                        yield return new ExternalSearchQueryResult<PersonItem>(query, person);
                     }
+                }
+                else if (response.StatusCode == HttpStatusCode.NoContent || response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    yield break;
+                }
+                else if (response.ErrorException != null)
+                {
+                    throw new AggregateException(response.ErrorException.Message, response.ErrorException);
+                }
+                else
+                {
+                    throw new ApplicationException("Could not execute external search query - StatusCode:" + response.StatusCode + "; Content: " + response.Content);
+                }
             }
-            else if (response.StatusCode == HttpStatusCode.NoContent || response.StatusCode == HttpStatusCode.NotFound)
-                yield break;
-            else if (response.ErrorException != null)
-                throw new AggregateException(response.ErrorException.Message, response.ErrorException);
-            else
-                throw new ApplicationException("Could not execute external search query - StatusCode:" + response.StatusCode + "; Content: " + response.Content);
         }
 
         protected bool CheckPremium(ExecutionContext context, string apiKey)// TODO: This should be executed only once(thread lock)
@@ -156,7 +176,9 @@ namespace CluedIn.ExternalSearch.Providers.Crunchbase
                 var response = client.Execute(request);
 
                 if (response.StatusCode == HttpStatusCode.OK)
+                {
                     return true;
+                }
 
                 return false;
             },
@@ -172,7 +194,7 @@ namespace CluedIn.ExternalSearch.Providers.Crunchbase
         /// <returns>The clues.</returns>
         public override IEnumerable<Clue> BuildClues(ExecutionContext context, IExternalSearchQuery query, IExternalSearchQueryResult result, IExternalSearchRequest request)
         {
-            var resultItem = result.As<PersonProperties>();
+            var resultItem = result.As<PersonItem>();
 
             var code = this.GetOriginEntityCode(resultItem);
 
@@ -183,7 +205,7 @@ namespace CluedIn.ExternalSearch.Providers.Crunchbase
             try
             {
                 using (var client = new WebClient())
-                using (var stream = client.OpenRead(resultItem.Data.profile_image_url)) //Get Full Quality Image
+                using (var stream = client.OpenRead(resultItem.Data.Properties.ProfileImageUrl)) //Get Full Quality Image
                 {
                     var inArray = StreamUtilies.ReadFully(stream);
                     if (inArray != null)
@@ -208,12 +230,10 @@ namespace CluedIn.ExternalSearch.Providers.Crunchbase
                 //Swallow
             }
 
-
+            var c = clue.Serialize();
 
             yield return clue;
         }
-
-
 
         /// <summary>Gets the primary entity metadata.</summary>
         /// <param name="context">The context.</param>
@@ -222,7 +242,7 @@ namespace CluedIn.ExternalSearch.Providers.Crunchbase
         /// <returns>The primary entity metadata.</returns>
         public override IEntityMetadata GetPrimaryEntityMetadata(ExecutionContext context, IExternalSearchQueryResult result, IExternalSearchRequest request)
         {
-            var resultItem = result.As<PersonProperties>();
+            var resultItem = result.As<PersonItem>();
             return this.CreateMetadata(resultItem);
         }
 
@@ -239,7 +259,7 @@ namespace CluedIn.ExternalSearch.Providers.Crunchbase
         /// <summary>Creates the metadata.</summary>
         /// <param name="resultItem">The result item.</param>
         /// <returns>The metadata.</returns>
-        private IEntityMetadata CreateMetadata(IExternalSearchQueryResult<PersonProperties> resultItem)
+        private IEntityMetadata CreateMetadata(IExternalSearchQueryResult<PersonItem> resultItem)
         {
             var metadata = new EntityMetadataPart();
 
@@ -251,9 +271,9 @@ namespace CluedIn.ExternalSearch.Providers.Crunchbase
         /// <summary>Gets the origin entity code.</summary>
         /// <param name="resultItem">The result item.</param>
         /// <returns>The origin entity code.</returns>
-        private EntityCode GetOriginEntityCode(IExternalSearchQueryResult<PersonProperties> resultItem)
+        private EntityCode GetOriginEntityCode(IExternalSearchQueryResult<PersonItem> resultItem)
         {
-            return new EntityCode(EntityType.Person, this.GetCodeOrigin(), resultItem.Data.uuid);
+            return new EntityCode(EntityType.Infrastructure.User, this.GetCodeOrigin(), resultItem.Data.Uuid);
         }
 
         /// <summary>Gets the code origin.</summary>
@@ -263,37 +283,44 @@ namespace CluedIn.ExternalSearch.Providers.Crunchbase
             return CodeOrigin.CluedIn.CreateSpecific("crunchBase");
         }
 
-
-        private void PopulateMetadata(IEntityMetadata metadata, IExternalSearchQueryResult<PersonProperties> resultItem)
+        private void PopulateMetadata(IEntityMetadata metadata, IExternalSearchQueryResult<PersonItem> resultItem)
         {
             var code = this.GetOriginEntityCode(resultItem);
 
             metadata.EntityType = code.Type;
             metadata.OriginEntityCode = code;
 
-            if (resultItem.Data.also_known_as != null)
-                metadata.Aliases.AddRange(resultItem.Data.also_known_as);
+            metadata.Name = string.Format("{0} {1}", resultItem.Data.Properties.FirstName, resultItem.Data.Properties.LastName);
 
-            metadata.Name = string.Format("{0} {1}", resultItem.Data.first_name, resultItem.Data.last_name);
-            metadata.Description = resultItem.Data.bio.PrintIfAvailable();
-            metadata.Properties[CrunchbaseVocabulary.Person.BornOn] = resultItem.Data.born_on.PrintIfAvailable();
-            metadata.Properties[CrunchbaseVocabulary.Person.BornOnTrustCode] = resultItem.Data.born_on_trust_code.PrintIfAvailable();
-            metadata.Properties[CrunchbaseVocabulary.Person.CreatedAt] = resultItem.Data.created_at.PrintIfAvailable();
-            metadata.Properties[CrunchbaseVocabulary.Person.DiedOn] = resultItem.Data.died_on.PrintIfAvailable();
-            metadata.Properties[CrunchbaseVocabulary.Person.DiedOnTrustCode] = resultItem.Data.died_on_trust_code.PrintIfAvailable();
-            metadata.Properties[CrunchbaseVocabulary.Person.FirstName] = resultItem.Data.first_name.PrintIfAvailable();
-            metadata.Properties[CrunchbaseVocabulary.Person.Gender] = resultItem.Data.gender.PrintIfAvailable();
-            metadata.Properties[CrunchbaseVocabulary.Person.LastName] = resultItem.Data.last_name.PrintIfAvailable();
-            metadata.Properties[CrunchbaseVocabulary.Person.PermaLink] = resultItem.Data.permalink.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.OrganizationPermalink] = resultItem.Data.Properties.OrganizationPermalink?.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.Permalink]             = resultItem.Data.Properties.Permalink?.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.ApiPath]               = resultItem.Data.Properties.ApiPath?.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.WebPath]               = resultItem.Data.Properties.WebPath?.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.ApiUrl]                = resultItem.Data.Properties.ApiUrl?.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.FirstName]             = resultItem.Data.Properties.FirstName?.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.LastName]              = resultItem.Data.Properties.LastName?.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.Gender]                = resultItem.Data.Properties.Gender?.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.Title]                 = resultItem.Data.Properties.Title?.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.OrganizationApiPath]   = resultItem.Data.Properties.OrganizationApiPath?.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.OrganizationWebPath]   = resultItem.Data.Properties.OrganizationWebPath?.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.OrganizationName]      = resultItem.Data.Properties.OrganizationName?.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.ProfileImageUrl]       = resultItem.Data.Properties.ProfileImageUrl?.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.HomepageUrl]           = resultItem.Data.Properties.HomepageUrl?.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.FacebookUrl]           = resultItem.Data.Properties.FacebookUrl?.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.TwitterUrl]            = resultItem.Data.Properties.TwitterUrl?.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.LinkedinUrl]           = resultItem.Data.Properties.LinkedinUrl?.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.CityName]              = resultItem.Data.Properties.CityName?.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.RegionName]            = resultItem.Data.Properties.RegionName?.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.CountryCode]           = resultItem.Data.Properties.CountryCode?.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.CreatedAt]             = resultItem.Data.Properties.CreatedAt?.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.UpdatedAt]             = resultItem.Data.Properties.UpdatedAt?.PrintIfAvailable();
 
             //Download this picture
-            metadata.Properties[CrunchbaseVocabulary.Person.ProfileImageUrl] = resultItem.Data.profile_image_url.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.ProfileImageUrl] = resultItem.Data.Properties.ProfileImageUrl?.PrintIfAvailable();
 
-            metadata.Properties[CrunchbaseVocabulary.Person.RoleInvestor] = resultItem.Data.role_investor.PrintIfAvailable();
-            metadata.Properties[CrunchbaseVocabulary.Person.UpdatedAt] = resultItem.Data.updated_at.PrintIfAvailable();
+            metadata.Properties[CrunchbaseVocabulary.Person.UpdatedAt] = resultItem.Data.Properties?.UpdatedAt?.PrintIfAvailable();
         
             metadata.Codes.Add(code);
-
         }
     }
 }

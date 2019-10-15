@@ -3,16 +3,12 @@ using Newtonsoft.Json;
 
 namespace CluedIn.ExternalSearch.Providers.Crunchbase.Model
 {
-    public class Images
+    public class OrganizationData
     {
-
-        [JsonProperty("cardinality")]
-        public string Cardinality { get; set; }
-
         [JsonProperty("paging")]
         public Paging Paging { get; set; }
 
         [JsonProperty("items")]
-        public List<Image> Items { get; set; }
+        public List<OrganizationItem> Items { get; set; }
     }
 }

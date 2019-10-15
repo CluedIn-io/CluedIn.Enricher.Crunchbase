@@ -2,9 +2,8 @@
 
 namespace CluedIn.ExternalSearch.Providers.Crunchbase.Model
 {
-    public class Person
+    public class OrganizationItem
     {
-
         [JsonProperty("type")]
         public string Type { get; set; }
 
@@ -12,6 +11,6 @@ namespace CluedIn.ExternalSearch.Providers.Crunchbase.Model
         public string Uuid { get; set; }
 
         [JsonProperty("properties")]
-        public PersonProperties Properties { get; set; }
+        public OrganizationProperties Properties { get; set; }
     }
 }

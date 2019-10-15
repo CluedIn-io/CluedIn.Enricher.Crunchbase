@@ -2,7 +2,7 @@
 
 namespace CluedIn.ExternalSearch.Providers.Crunchbase.Model
 {
-    public class PersonProperties
+    public class OrganizationProperties
     {
         [JsonProperty("permalink")]
         public string Permalink { get; set; }
@@ -16,32 +16,26 @@ namespace CluedIn.ExternalSearch.Providers.Crunchbase.Model
         [JsonProperty("api_url")]
         public string ApiUrl { get; set; }
 
-        [JsonProperty("first_name")]
-        public string FirstName { get; set; }
+        [JsonProperty("name")]
+        public string Name { get; set; }
 
-        [JsonProperty("last_name")]
-        public string LastName { get; set; }
+        [JsonProperty("stock_exchange")]
+        public string StockExchange { get; set; }
 
-        [JsonProperty("gender")]
-        public string Gender { get; set; }
+        [JsonProperty("stock_symbol")]
+        public string StockSymbol { get; set; }
 
-        [JsonProperty("title")]
-        public string Title { get; set; }
+        [JsonProperty("primary_role")]
+        public string PrimaryRole { get; set; }
 
-        [JsonProperty("organization_permalink")]
-        public string OrganizationPermalink { get; set; }
-
-        [JsonProperty("organization_api_path")]
-        public string OrganizationApiPath { get; set; }
-
-        [JsonProperty("organization_web_path")]
-        public string OrganizationWebPath { get; set; }
-
-        [JsonProperty("organization_name")]
-        public string OrganizationName { get; set; }
+        [JsonProperty("short_description")]
+        public string ShortDescription { get; set; }
 
         [JsonProperty("profile_image_url")]
         public string ProfileImageUrl { get; set; }
+
+        [JsonProperty("domain")]
+        public string Domain { get; set; }
 
         [JsonProperty("homepage_url")]
         public string HomepageUrl { get; set; }
